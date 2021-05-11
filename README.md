@@ -15,8 +15,7 @@ kun je [hier](https://restcountries.eu/#api-endpoints-language) vinden.
 1. Koppel jouw JavaScript bestand met de HTML pagina. Doe dit ook voor het CSS bestand.
 2. Maak een `package.json` aan met `npm init --yes`.
 3. Installeer de npm package `axios` met `npm install axios --save`.
-4. Zorg ervoor dat we toegang hebben tot deze package door `<script src="./node_modules/axios/dist/axios.min.js"></script>`
-aan onze HTML toe te voegen.
+4. Zorg ervoor dat je `axios` importeert!
 4. Vergeet niet dat je bij iedere wijziging eerst moet opslaan en de browser moet refreshen. 
 `Nodemon` is niet meer nodig omdat we JavaScript nu in de browser gaan gebruiken (waar het voor bedoeld is)
 5. Schrijf voor alle onderstaande opdrachten eerst **stap voor stap de psuedo-code uit**. 
