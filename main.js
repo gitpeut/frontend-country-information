@@ -2,7 +2,6 @@
 
 let countries = [];
 let APIerror  = "";
-let findingCountry = false;
 
 function delDomTree( root ){
     for (let i = 0; i < root.children.length; i++) {
@@ -141,9 +140,9 @@ function showCountry( countryObject ){
 
 }
 
-async function findCountry(){
-    if ( findingCountry) return;
-    findingCountry = true;
+async function findCountry( event ){
+    // make sure no page reloads, other events fire etc.
+    event.preventDefault();
 
     changeErrorVisibility( false);
 
@@ -157,20 +156,18 @@ async function findCountry(){
 
     for( let i in countries ){
         if ( country === countries[i].name ){
-            findingCountry = false;
             showCountry( countries[i] );
-            return countries[i].name
+            return false;
         }
     }
 
-    findingCountry = false;
     if ( APIerror === "" ){
         console.log('no such country' + country);
         showCountryError(country + " : No such country exists ")
     }else {
         showCountryError(APIerror);
     }
-    return "";
+    return false;
 }
 
 
@@ -207,6 +204,10 @@ function createSearchField(){
     errorField.id  = "error-field";
     parentdiv.append(errorField);
 
+
+    let searchForm = document.createElement('form');
+    searchForm.addEventListener('submit', findCountry );
+
     // Add the searchfield and the datalist
     let searchfield = document.createElement('input');
     searchfield.setAttribute('type', 'text');
@@ -214,23 +215,22 @@ function createSearchField(){
     searchfield.setAttribute('list', 'country-names');
     searchfield.id = "searchfield";
 
-    // Don't add change event listener. It causes double firing with
-    // the button click Event listener. Ij a proper form with a submit button
-    // this very likely would work
-    //searchfield.addEventListener('change', findCountry );
-    parentdiv.appendChild( searchfield );
+    searchForm.appendChild( searchfield );
     // add datalist with id country-name to the parent div as well
-    parentdiv.appendChild( buildCountryList() );
+    searchForm.appendChild( buildCountryList() );
 
     // add a button
     let searchbutton = document.createElement('button');
+    searchbutton.setAttribute('type', 'submit');
     searchbutton.id  = "searchbutton";
-    searchbutton.addEventListener('click', findCountry );
 
     let buttontext = document.createTextNode("Search Country");
     searchbutton.appendChild( buttontext);
 
-    parentdiv.appendChild( searchbutton );
+    searchForm.appendChild( searchbutton );
+
+    parentdiv.appendChild( searchForm );
+
 
     // Add the main div to the body
     body.appendChild( parentdiv);
