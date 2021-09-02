@@ -73,8 +73,6 @@ function changeErrorVisibility( onoff){
     }
 }
 
-
-
 function showCountryError( text ){
     let errorField = document.getElementById('error-field');
     errorField.innerHTML = text;
@@ -237,7 +235,15 @@ function createSearchField(){
 // make main function async so we can await the getcountries function
 //
 async function main(){
+    // retrieve all possible data.
+    // This is a bit naughty, as this was not what was asked (
+    // call the api at every query).
+    // However, as there only so many countries (~250), there is no possible
+    // issue of this overpowering the client, especially when collecting
+    // only the required fields.
+    // And it improves speed and allows for a nice datalist to the text input.
     await getCountries();
+    //add the search field
     createSearchField();
 }
 
