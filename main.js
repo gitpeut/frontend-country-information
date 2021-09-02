@@ -3,6 +3,8 @@
 let countries = [];
 let APIerror  = "";
 
+// delete a DOMtree, including the parent element in the parameter to this function
+
 function delDomTree( root ){
     for (let i = 0; i < root.children.length; i++) {
         delDomTree( root.children[i] );
@@ -34,28 +36,9 @@ function A2String( A ){
         }
     }
 
-    console.log( string );
+    //console.log( string );
 
 return string;
-}
-
-function addFlag( countryName , flagUrl ){
-    let flaglist    = document.getElementById('flags');
-
-    let flagItem   = document.createElement('li');
-
-    let flag   = document.createElement('img');
-    flag.src   = flagUrl;
-    flag.style.height = '100px';
-    //flag.style.width = '150px';
-
-    let country   = document.createTextNode( countryName );
-
-    flagItem.appendChild( flag );
-    flagItem.appendChild( country );
-
-    flaglist.appendChild( flagItem );
-
 }
 
 
@@ -70,7 +53,7 @@ async function getCountries(){
             ({ name:c.name, capital:c.capital, languages:c.languages, currencies:c.currencies, flag:c.flag , population: c.population, subregion: c.subregion} = result.data[i]);
             countries.push(c);
         }
-        console.log( countries );
+        //console.log( countries );
     } catch(e) {
         console.error(e);
         APIerror = " Unable to collect country data. The network may be failing or the website may be down. Try again later."
@@ -90,6 +73,8 @@ function changeErrorVisibility( onoff){
     }
 }
 
+
+
 function showCountryError( text ){
     let errorField = document.getElementById('error-field');
     errorField.innerHTML = text;
@@ -97,8 +82,12 @@ function showCountryError( text ){
     console.error( text);
 }
 
+// once found, show the country details as per the specification.
+// no handling of errors or omissions in the country api,
+// these issues may be transient
+
 function showCountry( countryObject ){
-    console.log( "Showing " + countryObject.name );
+    //log( "Showing " + countryObject.name );
     document.getElementById( 'searchfield').value = '';
     try{
         delDomTree( document.getElementById( 'result') );
@@ -126,7 +115,7 @@ function showCountry( countryObject ){
 
     let codestring = '';
     codestring += countryObject.name + ' is situated in ' + countryObject.subregion + '.\n';
-    codestring += 'It has a population of ' + countryObject.population + ' people. ';
+    codestring += 'It has a population of ' + Number( countryObject.population ).toLocaleString('en-en') + ' people. ';
     codestring += 'The capital is ' + countryObject.capital;
     codestring += ' and you can pay with ' + A2String( countryObject.currencies ) + '.\n';
     codestring += 'They speak ' + A2String( countryObject.languages ) + '.\n';
@@ -139,6 +128,7 @@ function showCountry( countryObject ){
     parentdiv.appendChild( resultdiv );
 
 }
+
 
 async function findCountry( event ){
     // make sure no page reloads, other events fire etc.
@@ -162,7 +152,7 @@ async function findCountry( event ){
     }
 
     if ( APIerror === "" ){
-        console.log('no such country' + country);
+        console.warn('no such country' + country);
         showCountryError(country + " : No such country exists ")
     }else {
         showCountryError(APIerror);
@@ -204,30 +194,33 @@ function createSearchField(){
     errorField.id  = "error-field";
     parentdiv.append(errorField);
 
+//searchForm. This allows for submitting the query both by clicking
+// search button and hitting enter after a country is selected of entered,
+// provided an event.preventDefault is done in the submit event handler.
 
     let searchForm = document.createElement('form');
     searchForm.addEventListener('submit', findCountry );
 
-    // Add the searchfield and the datalist
-    let searchfield = document.createElement('input');
-    searchfield.setAttribute('type', 'text');
-    // refer to the datalist with id country-names
-    searchfield.setAttribute('list', 'country-names');
-    searchfield.id = "searchfield";
+        // Add the searchfield and the datalist
+        let searchfield = document.createElement('input');
+        searchfield.setAttribute('type', 'text');
+        // refer to the datalist with id country-names
+        searchfield.setAttribute('list', 'country-names');
+        searchfield.id = "searchfield";
 
-    searchForm.appendChild( searchfield );
-    // add datalist with id country-name to the parent div as well
-    searchForm.appendChild( buildCountryList() );
+        searchForm.appendChild( searchfield );
+        // add datalist with id country-name to the parent div as well
+        searchForm.appendChild( buildCountryList() );
 
-    // add a button
-    let searchbutton = document.createElement('button');
-    searchbutton.setAttribute('type', 'submit');
-    searchbutton.id  = "searchbutton";
+        // add a button
+        let searchbutton = document.createElement('button');
+        searchbutton.setAttribute('type', 'submit');
+        searchbutton.id  = "searchbutton";
 
-    let buttontext = document.createTextNode("Search Country");
-    searchbutton.appendChild( buttontext);
+        let buttontext = document.createTextNode("Search Country");
+        searchbutton.appendChild( buttontext);
 
-    searchForm.appendChild( searchbutton );
+        searchForm.appendChild( searchbutton );
 
     parentdiv.appendChild( searchForm );
 
