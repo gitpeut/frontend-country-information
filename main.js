@@ -1,16 +1,28 @@
 // const axios = require('axios')
 
 let countries = [];
-let APIerror  = "";
+let APIerror = "";
 
 // delete a DOMtree, including the parent element in the parameter to this function
 
-function delDomTree( root ){
+function delDomTree(root) {
     for (let i = 0; i < root.children.length; i++) {
-        delDomTree( root.children[i] );
+        delDomTree(root.children[i]);
     }
     root.remove();
 }
+
+// if string is undefined, empty or contains less than 4 characters
+// return the empty message
+
+function cleanString(string, emptyMessage) {
+
+    let out = string ?? emptyMessage;
+    if (out.length < 4) out = emptyMessage;
+    return out;
+
+}
+
 
 // format an array of objects with the name attribute to a comma
 // separated string with last 2 element separated by 'and' in stead of ','.
@@ -19,15 +31,15 @@ function delDomTree( root ){
 // one,two -> one and two
 // one,two,thrre -> one,two and three.
 
-function A2String( A ){
-    let string  = '';
-    let alen    = A.length;
-    for( let i=0; i < alen; ++i ){
-        string += A[i].name ?? "unknown";
-        switch(i){
-            case (alen-1):
+function A2String(A) {
+    let string = '';
+    let alen = A.length;
+    for (let i = 0; i < alen; ++i) {
+        string += cleanString(A[i].name, "unspecified others")
+        switch (i) {
+            case (alen - 1):
                 break;
-            case (alen-2):
+            case (alen - 2):
                 string += ' and ';
                 break;
             default:
@@ -38,121 +50,139 @@ function A2String( A ){
 
     //console.log( string );
 
-return string;
+    return string;
 }
 
 
 // Collect all countries and select relevant fields for our app
-async function getCountries(){
+async function getCountries() {
     APIerror = "";
     try {
         const result = await axios.get('https://restcountries.eu/rest/v2/all?fields=name;capital;population;currencies;languages;flag;subregion');
 
         for (let i in result.data) {
             let c = {};
-            ({ name:c.name, capital:c.capital, languages:c.languages, currencies:c.currencies, flag:c.flag , population: c.population, subregion: c.subregion} = result.data[i]);
+            ({
+                name: c.name,
+                capital: c.capital,
+                languages: c.languages,
+                currencies: c.currencies,
+                flag: c.flag,
+                population: c.population,
+                subregion: c.subregion
+            } = result.data[i]);
             countries.push(c);
         }
         //console.log( countries );
-    } catch(e) {
+    } catch (e) {
         console.error(e);
         APIerror = " Unable to collect country data. The network may be failing or the website may be down. Try again later."
-        console.warn( APIerror );
+        console.warn(APIerror);
     }
 }
 
-function changeErrorVisibility( onoff){
+function changeErrorVisibility(onoff) {
     let errorField = document.getElementById('error-field');
 
-    if ( onoff ){
+    if (onoff) {
         errorField.classList.remove('hidden');
         errorField.classList.add('visible');
-    }else{
+    } else {
         errorField.classList.remove('visible');
         errorField.classList.add('hidden');
     }
 }
 
-function showCountryError( text ){
+function showCountryError(text) {
     let errorField = document.getElementById('error-field');
     errorField.innerHTML = text;
-    changeErrorVisibility( true);
-    console.error( text);
+    changeErrorVisibility(true);
+    console.error(text);
 }
+
 
 // once found, show the country details as per the specification.
 // no handling of errors or omissions in the country api,
 // these issues may be transient
 
-function showCountry( countryObject ){
+function showCountry(countryObject) {
     //log( "Showing " + countryObject.name );
-    document.getElementById( 'searchfield').value = '';
-    try{
-        delDomTree( document.getElementById( 'result') );
-    }catch(e){
+    document.getElementById('searchfield').value = '';
+    try {
+        delDomTree(document.getElementById('result'));
+    } catch (e) {
         //Never mind, first time use
     }
     let parentdiv = document.getElementById('main');
-    let resultdiv =  document.createElement('div');
+    let resultdiv = document.createElement('div');
     resultdiv.id = 'result';
 
-    let flag   = document.createElement('img');
-    flag.id    = 'flag';
-    flag.src   = countryObject.flag;
+    let flag = document.createElement('img');
+    flag.id = 'flag';
+    flag.src = countryObject.flag;
     flag.style.height = '100px';
 
-    resultdiv.appendChild( flag );
+    resultdiv.appendChild(flag);
 
     let textdiv = document.createElement('div');
-    textdiv.id  = 'description';
+    textdiv.id = 'description';
 
-    nameElement      = document.createElement('h2');
+    let nameElement = document.createElement('h2');
     let nameElementTxt = document.createTextNode(countryObject.name);
-    nameElement.appendChild( nameElementTxt );
-    resultdiv.appendChild( nameElement );
+    nameElement.appendChild(nameElementTxt);
+    resultdiv.appendChild(nameElement);
 
     let codestring = '';
-    codestring += countryObject.name + ' is situated in ' + countryObject.subregion + '.\n';
-    codestring += 'It has a population of ' + Number( countryObject.population ).toLocaleString('en-en') + ' people. ';
-    codestring += 'The capital is ' + countryObject.capital;
-    codestring += ' and you can pay with ' + A2String( countryObject.currencies ) + '.\n';
-    codestring += 'They speak ' + A2String( countryObject.languages ) + '.\n';
+    codestring += countryObject.name;
+    if (cleanString(countryObject.subregion, '') !== '') {
+        codestring += ' is situated  in ' + cleanString(countryObject.subregion, '') + '.\nIt has';
+    } else {
+        codestring += ' has';
+    }
+    codestring += ' a population of ' + Number(countryObject.population).toLocaleString('en-en') + ' people.';
+    if (cleanString(countryObject.capital, "") !== "") {
+        codestring += ' The capital is ' + countryObject.capital + ' and you';
+    } else {
+        codestring += ' No capital is registered. You'
+    }
+    codestring += ' can pay with ' + A2String(countryObject.currencies) + '.\n';
+    codestring += 'They speak ' + A2String(countryObject.languages) + '.\n';
 
-    let txtContent = document.createTextNode( codestring );
+    let txtContent = document.createTextNode(codestring);
 
-    textdiv.appendChild( txtContent );
+    textdiv.appendChild(txtContent);
 
-    resultdiv.appendChild( textdiv );
-    parentdiv.appendChild( resultdiv );
+    resultdiv.appendChild(textdiv);
+    parentdiv.appendChild(resultdiv);
 
 }
 
 
-async function findCountry( event ){
+async function findCountry(event) {
     // make sure no page reloads, other events fire etc.
     event.preventDefault();
 
-    changeErrorVisibility( false);
+    changeErrorVisibility(false);
 
     let country = document.getElementById("searchfield").value;
 
-    if ( countries.length === 0 ){
-        delDomTree( document.getElementById( 'main' ) );
+    if (countries.length === 0) {
+        delDomTree(document.getElementById('main'));
         await getCountries();
         createSearchField();
     }
 
-    for( let i in countries ){
-        if ( country === countries[i].name ){
-            showCountry( countries[i] );
+    for (let i in countries) {
+        if (country === countries[i].name) {
+            showCountry(countries[i]);
             return false;
         }
     }
 
-    if ( APIerror === "" ){
+    if (APIerror === "") {
         console.warn('no such country' + country);
         showCountryError(country + " : No such country exists ")
-    }else {
+    } else {
         showCountryError(APIerror);
     }
     return false;
@@ -163,13 +193,13 @@ async function findCountry( event ){
 // To add all country names to the datalist, traverse the objects in countries
 // and extract the name and add it to the datalist.
 
-function buildCountryList(){
+function buildCountryList() {
     let countrylist = document.createElement('datalist');
     countrylist.id = 'country-names';
 
-    for( let i in countries){
+    for (let i in countries) {
         let o = document.createElement('option');
-        let t = document.createTextNode(countries[i].name );
+        let t = document.createTextNode(countries[i].name);
 
         o.appendChild(t);
         countrylist.appendChild(o);
@@ -179,8 +209,7 @@ function buildCountryList(){
 }
 
 
-
-function createSearchField(){
+function createSearchField() {
 
     let body = document.querySelector('body');
 
@@ -188,8 +217,8 @@ function createSearchField(){
     let parentdiv = document.createElement('div');
     parentdiv.id = "main";
 
-    let errorField =  document.createElement('div');
-    errorField.id  = "error-field";
+    let errorField = document.createElement('div');
+    errorField.id = "error-field";
     parentdiv.append(errorField);
 
 //searchForm. This allows for submitting the query both by clicking
@@ -197,44 +226,44 @@ function createSearchField(){
 // provided an event.preventDefault is done in the submit event handler.
 
     let searchForm = document.createElement('form');
-    searchForm.addEventListener('submit', findCountry );
+    searchForm.addEventListener('submit', findCountry);
 
-        // Add the searchfield and the datalist
-        let searchfield = document.createElement('input');
-        searchfield.setAttribute('type', 'text');
-        // refer to the datalist with id country-names
-        searchfield.setAttribute('list', 'country-names');
-        searchfield.id = "searchfield";
+    // Add the searchfield and the datalist
+    let searchfield = document.createElement('input');
+    searchfield.setAttribute('type', 'text');
+    // refer to the datalist with id country-names
+    searchfield.setAttribute('list', 'country-names');
+    searchfield.id = "searchfield";
 
-        searchForm.appendChild( searchfield );
-        // add datalist with id country-name to the parent div as well
-        searchForm.appendChild( buildCountryList() );
+    searchForm.appendChild(searchfield);
+    // add datalist with id country-name to the parent div as well
+    searchForm.appendChild(buildCountryList());
 
-        // add a button
-        let searchbutton = document.createElement('button');
-        searchbutton.setAttribute('type', 'submit');
-        searchbutton.id  = "searchbutton";
+    // add a button
+    let searchbutton = document.createElement('button');
+    searchbutton.setAttribute('type', 'submit');
+    searchbutton.id = "searchbutton";
 
-        let buttontext = document.createTextNode("Search Country");
-        searchbutton.appendChild( buttontext);
+    let buttontext = document.createTextNode("Search Country");
+    searchbutton.appendChild(buttontext);
 
-        searchForm.appendChild( searchbutton );
+    searchForm.appendChild(searchbutton);
 
-    parentdiv.appendChild( searchForm );
+    parentdiv.appendChild(searchForm);
 
 
     // Add the main div to the body
-    body.appendChild( parentdiv);
+    body.appendChild(parentdiv);
 
-    if ( APIerror !== "" ){
-        showCountryError( APIerror);
+    if (APIerror !== "") {
+        showCountryError(APIerror);
     }
 
 }
 
 // make main function async so we can await the getcountries function
 //
-async function main(){
+async function main() {
     // retrieve all possible data.
     // This is a bit naughty, as this was not what was asked (
     // call the api at every query).
