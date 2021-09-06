@@ -18,7 +18,7 @@ function delDomTree(root) {
 function cleanString(string, emptyMessage) {
 
     let out = string ?? emptyMessage;
-    if (out.length < 4) out = emptyMessage;
+    if (out.includes('[') ) out = emptyMessage;
     return out;
 
 }
