@@ -1,6 +1,10 @@
 // const axios = require('axios')
 
 let countries = [];
+
+// APIError defined globally, so it can be displayed depending on
+// contents (empty or not).
+
 let APIerror = "";
 
 // delete a DOMtree, including the parent element in the parameter to this function
@@ -12,7 +16,7 @@ function delDomTree(root) {
     root.remove();
 }
 
-// if string is undefined, empty or contains less than 4 characters
+// if string is undefined, empty or contains '['
 // return the empty message
 
 function cleanString(string, emptyMessage) {
@@ -29,9 +33,9 @@ function cleanString(string, emptyMessage) {
 // so results:
 // one -> one
 // one,two -> one and two
-// one,two,thrre -> one,two and three.
+// one,two,three -> one,two and three.
 
-function A2String(A) {
+function array2String(A) {
     let string = '';
     let alen = A.length;
     for (let i = 0; i < alen; ++i) {
@@ -61,7 +65,6 @@ async function getCountries() {
         const result = await axios.get('https://restcountries.eu/rest/v2/all?fields=name;capital;population;currencies;languages;flag;subregion');
 
         for (let i in result.data) {
-            let c = {};
             ({
                 name: c.name,
                 capital: c.capital,
@@ -132,6 +135,9 @@ function showCountry(countryObject) {
     nameElement.appendChild(nameElementTxt);
     resultdiv.appendChild(nameElement);
 
+    // initialize codestring to '' to make sure you can always use +=
+    // without testing if this is the first part of the codestring.
+
     let codestring = '';
     codestring += countryObject.name;
     if (cleanString(countryObject.subregion, '') !== '') {
@@ -145,8 +151,8 @@ function showCountry(countryObject) {
     } else {
         codestring += ' No capital is registered. You'
     }
-    codestring += ' can pay with ' + A2String(countryObject.currencies) + '.\n';
-    codestring += 'They speak ' + A2String(countryObject.languages) + '.\n';
+    codestring += ' can pay with ' + array2String(countryObject.currencies) + '.\n';
+    codestring += 'They speak ' + array2String(countryObject.languages) + '.\n';
 
     let txtContent = document.createTextNode(codestring);
 
