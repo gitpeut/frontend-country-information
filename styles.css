@@ -1,0 +1,89 @@
+
+body{
+    font-family: Arial, Verdana, sans-serif;
+    font-size: 1.7vmax;
+    background-image: url("assets/1-bluemarble_west.jpg");
+    background-repeat: no-repeat;
+    background-position: top;
+    background-size: 50%;
+    background-color: black;
+    color: beige;
+}
+
+#main{
+    background-color: white;
+    width:  60vw;
+    /*height: 80vw;*/
+    margin: 20vh auto;
+    padding: 1vw;
+    color: black;
+    border: 2px solid lightgrey;
+    box-shadow: 2px 2px 5px cadetblue;
+}
+
+#searchfield{
+    width: 40%;
+    height: 2.6vw;
+    font-size: 1.5vw;
+    margin: 0;
+    color: black;
+    border-radius: 5px;
+}
+
+#searchbutton{
+    height: 3.9vmax;
+    margin: 0;
+    margin-bottom: 1vw;
+    margin-left: 2vw;
+    background-color: lightgray;
+    font-size: 1.2vmax;
+    border-radius: 5px;
+}
+
+.hidden{
+    visibility: hidden;
+}
+
+.visible{
+    visibility: visible;
+}
+
+#error-field{
+    width: 100%;
+    font-size: 1vw;
+    color: red;
+    padding-left: 1.5vw;
+}
+
+h1{
+    margin: 1px auto;
+    font-size: 5vw;
+    text-align: center;
+}
+
+h2{
+    margin: 1px auto;
+    font-size: 3vmax;
+    text-align: center;
+}
+
+#result{
+    width: 100%;
+}
+
+#description{
+    width: 100%;
+    white-space: pre-line;
+    font-family: "Comic Sans MS", "courier new", sans-serif;
+    font-size: 3.1vmin;
+    background-color: white;
+    box-shadow: 0px 0px 3px 3px aliceblue;
+}
+
+#flag{
+    height: 10%;
+    display: block;
+    margin: auto;
+    box-shadow: 2px 2px 5px cadetblue;
+}
+
